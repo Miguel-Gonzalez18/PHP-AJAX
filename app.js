@@ -1,4 +1,5 @@
 $(function(){
+    let edit = false;
     $('#tarea-result').hide();
     verTareas();
     $('#buscar').keyup(function(){
@@ -29,11 +30,14 @@ $(function(){
     $('#form-tarea').submit(function(e){
         const postData = {
             'name': $('#name').val(),
-            'description': $('#description').val()
+            'description': $('#description').val(),
+            'id' : $('#IdTarea').val()
         };
-        $.post('task-add.php', postData, function(response){
+        let url = edit === false ? 'task-add.php' : 'edit.php';
+        $.post(url, postData, function(response){
             verTareas();
             $('#form-tarea').trigger('reset');
+            edit = false;
         });
         e.preventDefault();
     });
@@ -57,7 +61,7 @@ $(function(){
                             <buttom class="btn btn-danger btn-borrar" title="Borrar esta tarea">
                                 <i class="fas fa-trash"></i>
                             </buttom>
-                            <buttom class="btn btn-primary" title="Editar esta tarea">
+                            <buttom class="btn btn-primary btn-editar" title="Editar esta tarea">
                                 <i class="fas fa-pen"></i>
                             </buttom>
                             <buttom class="btn btn-secondary" title="Archivar">
@@ -73,12 +77,25 @@ $(function(){
     }
 
     $(document).on('click', '.btn-borrar', function(){
+        if(confirm('Estas seguro que quieres eliminar esta tarea')){
+            let element = $(this)[0].parentElement.parentElement;
+            let tareaId = $(element).attr('tareaid');
+            $.post('borrar-tarea.php', {tareaId}, function(response){
+                verTareas();
+                console.log(response);
+            });
+        }
+    });
+    $(document).on('click', '.btn-editar', function(){
         let element = $(this)[0].parentElement.parentElement;
         let tareaId = $(element).attr('tareaid');
-        $.post('borrar-tarea.php', {tareaId}, function(response){
+        $.post('editar-tarea.php', {tareaId}, function(response){
             verTareas();
-            console.log(response);
+            let tarea = JSON.parse(response);
+            $('#name').val(tarea.nombre);
+            $('#description').val(tarea.descripcion);
+            $('#IdTarea').val(tarea.id);
+            edit = true;
         });
     });
-
 });
