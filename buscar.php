@@ -7,7 +7,7 @@
         $result = mysqli_query($conn, $query);
 
         if(!$result){
-            die('Error de consulta: '.mysqli_errno($conn));
+            die('Error de consulta: '.mysqli_error($conn));
         }
         else{
             $json = array();
